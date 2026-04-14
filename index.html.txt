@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maratón de Acontecimientos</title>
+<!-- Enlaces directos corregidos -->
+<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<link href="https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DLuckiest%2BGuy%26family%3DMontserrat:wght%40400%3B700%26display%3Dswap" rel="stylesheet">
+<style>
+:root {
+--blue-dark: #001F3F;
+--blue-light: #0074D9;
+}
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: 'Montserrat', sans-serif;
+        background: radial-gradient(circle at center, var(--blue-light) 0%, var(--blue-dark) 100%);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+    .luckiest { font-family: 'Luckiest Guy', cursive; }
+
+    /* Estilo de Título */
+    .game-title {
+        font-size: 3.5rem;
+        text-align: center;
+        line-height: 1;
+        color: #FFFFFF;
+        text-shadow: 0 4px 0 #888, 0 8px 15px rgba(0,0,0,0.4);
+        -webkit-text-stroke: 1.5px #B8860B;
+        z-index: 10;
+    }
+
+    .game-title span { color: #FFD700; }
+
+    /* Área del Tablero */
+    .game-area {
+        position: relative;
+        width: 1000px;
+        height: 600px;
+        z-index: 5;
+    }
+
+    .tile {
+        position: absolute;
+        width: 75px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.8rem;
+        color: #333;
+        box-shadow: 0 5px 0 rgba(0,0,0,0.2), inset 0 -3px 0 rgba(0,0,0,0.1);
+    }
+
+    /* Colores del camino */
+    .t-yellow { background-color: #FDFD96; }
+    .t-orange { background-color: #FFB347; }
+    .t-green  { background-color: #77DD77; }
+    .t-pink   { background-color: #FFB7CE; }
+
+    /* Avatar */
+    .avatar {
+        position: absolute;
+        width: 55px;
+        height: 55px;
+        z-index: 50;
+        transition: all 0.6s ease-in-out;
+        filter: drop-shadow(0 0 8px gold);
+    }
+
+    /* HUD */
+    .hud-bottom {
+        position: absolute;
+        bottom: 40px;
+        display: flex;
+        gap: 80px;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 2.2rem;
+        color: #FFD700;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+        z-index: 20;
+    }
+
+    .hud-bottom span { color: white; margin-left: 10px; }
+
+    /* Modales */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .overlay.active { display: flex; }
+
+    .card {
+        background: white;
+        color: #333;
+        padding: 40px;
+        border-radius: 30px;
+        width: 90%;
+        max-width: 550px;
+        text-align: center;
+        border: 8px solid var(--blue-light);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    }
+
+    .opt-btn {
+        width: 100%;
+        padding: 14px;
+        margin: 8px 0;
+        background: #F8F9FA;
+        border: 2px solid #E9ECEF;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .opt-btn:hover { background: #E7F1FF; border-color: var(--blue-light); color: var(--blue-dark); }
+
+    .btn-gold {
+        background: linear-gradient(to bottom, #FFD700, #FFA500);
+        color: #5C3D00;
+        padding: 12px 35px;
+        border-radius: 50px;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.6rem;
+        box-shadow: 0 5px 0 #B8860B;
+        cursor: pointer;
+    }
+</style>
+
+
+</head>
+<body>
+
+<!-- Pantalla de Inicio -->
+
+<div id="start-screen" class="flex flex-col items-center z-20">
+<h1 class="game-title luckiest">MARATÓN DE:
+
+
+
+<span>ACONTECIMIENTOS</span></h1>
+<div class="mt-10 bg-white/10 p-10 rounded-3xl border border-white/20 backdrop-blur-md flex flex-col items-center shadow-xl">
+<input type="text" id="name-input" class="w-80 p-4 rounded-full text-center text-xl text-gray-800 mb-6 outline-none" placeholder="TU NOMBRE...">
+<button onclick="initGame()" class="btn-gold">¡EMPEZAR!</button>
+</div>
+</div>
+
+<!-- Pantalla de Juego -->
+
+<div id="game-screen" class="hidden w-full h-full flex flex-col items-center justify-center relative">
+<h1 class="game-title luckiest mt-10" style="font-size: 2.5rem;">MARATÓN DE:
+
+
+
+<span>ACONTECIMIENTOS</span></h1>
+
+<div class="game-area" id="board">
+    <div id="avatar" class="avatar">
+        <svg viewBox="0 0 40 40">
+            <rect x="8" y="8" width="24" height="24" rx="4" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+            <rect x="14" y="16" width="3" height="4" fill="#333"/>
+            <rect x="23" y="16" width="3" height="4" fill="#333"/>
+        </svg>
+    </div>
+    <div id="tiles-layer"></div>
+</div>
+
+<div class="hud-bottom">
+    <div>PUNTOS: <span id="ui-score">0</span></div>
+    <div>TIEMPO: <span id="ui-time">15</span></div>
+</div>
+
+
+</div>
+
+<!-- Modales -->
+
+<div id="modal-trivia" class="overlay">
+<div class="card">
+<h2 id="q-label" class="text-2xl font-bold my-5"></h2>
+<div id="opt-container"></div>
+</div>
+</div>
+
+<div id="modal-feedback" class="overlay">
+<div class="card">
+<h2 id="f-title" class="luckiest text-4xl mb-4"></h2>
+<p id="f-msg" class="text-lg mb-8"></p>
+<button id="f-btn" class="btn-gold">CONTINUAR</button>
+</div>
+</div>
+
+<script>
+const trivia = [
+{ q: "¿En qué año ocurrió la caída del Muro de Berlín?", a: "1989", o: ["1985", "1991", "1980"] },
+{ q: "¿Quién fue el primer hombre en pisar la Luna?", a: "Neil Armstrong", o: ["Buzz Aldrin", "Yuri Gagarin", "Michael Collins"] },
+{ q: "¿En qué país comenzó la Revolución Industrial?", a: "Inglaterra", o: ["Francia", "EE.UU.", "Alemania"] },
+{ q: "¿Qué evento inició la Primera Guerra Mundial?", a: "Asesinato del Archiduque Francisco Fernando", o: ["Invasión de Polonia", "Batalla de Verdún", "Hundimiento del Lusitania"] },
+{ q: "¿En qué año se descubrió América?", a: "1492", o: ["1488", "1500", "1453"] }
+];
+
+const tilesData = [
+    { x: 380, y: 520, n: &quot;1&quot;, c: &quot;t-yellow&quot; }, { x: 465, y: 525, n: &quot;2&quot;, c: &quot;t-orange&quot; },
+    { x: 550, y: 525, n: &quot;3&quot;, c: &quot;t-pink&quot; }, { x: 635, y: 505, n: &quot;4&quot;, c: &quot;t-yellow&quot; },
+    { x: 675, y: 440, n: &quot;5&quot;, c: &quot;t-orange&quot; }, { x: 600, y: 410, n: &quot;5&quot;, c: &quot;t-green&quot; },
+    { x: 515, y: 405, n: &quot;&quot;, c: &quot;t-yellow&quot; }, { x: 430, y: 415, n: &quot;&quot;, c: &quot;t-orange&quot; },
+    { x: 345, y: 435, n: &quot;6&quot;, c: &quot;t-yellow&quot; }, { x: 260, y: 435, n: &quot;&quot;, c: &quot;t-orange&quot; },
+    { x: 175, y: 415, n: &quot;7&quot;, c: &quot;t-yellow&quot; }, { x: 175, y: 340, n: &quot;7&quot;, c: &quot;t-orange&quot; },
+    { x: 250, y: 300, n: &quot;8&quot;, c: &quot;t-yellow&quot; }, { x: 335, y: 295, n: &quot;8&quot;, c: &quot;t-pink&quot; },
+    { x: 420, y: 285, n: &quot;&quot;, c: &quot;t-green&quot; }, { x: 505, y: 265, n: &quot;&quot;, c: &quot;t-yellow&quot; },
+    { x: 590, y: 245, n: &quot;&quot;, c: &quot;t-orange&quot; }, { x: 675, y: 220, n: &quot;8&quot;, c: &quot;t-yellow&quot; },
+    { x: 755, y: 170, n: &quot;7&quot;, c: &quot;t-orange&quot; }, { x: 800, y: 100, n: &quot;&quot;, c: &quot;t-yellow&quot; }
+];
+
+let currentPos = 0, score = 0, time = 15, timer;
+
+function initGame() {
+    if(!document.getElementById(&#39;name-input&#39;).value) return;
+    document.getElementById(&#39;start-screen&#39;).classList.add(&#39;hidden&#39;);
+    document.getElementById(&#39;game-screen&#39;).classList.remove(&#39;hidden&#39;);
+    renderTiles();
+    moveAvatar(0);
+    ask();
+}
+
+function renderTiles() {
+    const layer = document.getElementById(&#39;tiles-layer&#39;);
+    layer.innerHTML = &quot;&quot;;
+    tilesData.forEach(t =&gt; {
+        const d = document.createElement(&#39;div&#39;);
+        d.className = `tile ${t.c}`;
+        d.style.left = t.x + &quot;px&quot;;
+        d.style.top = t.y + &quot;px&quot;;
+        d.innerText = t.n;
+        layer.appendChild(d);
+    });
+}
+
+function moveAvatar(i) {
+    const av = document.getElementById(&#39;avatar&#39;);
+    av.style.left = (tilesData[i].x + 10) + &quot;px&quot;;
+    av.style.top = (tilesData[i].y - 45) + &quot;px&quot;;
+}
+
+function startClock() {
+    clearInterval(timer);
+    time = 15;
+    document.getElementById(&#39;ui-time&#39;).innerText = time;
+    timer = setInterval(() =&gt; {
+        time--;
+        document.getElementById(&#39;ui-time&#39;).innerText = time;
+        if(time &lt;= 0) { 
+            clearInterval(timer); 
+            alert(&quot;¡Tiempo agotado!&quot;); 
+            location.reload(); 
+        }
+    }, 1000);
+}
+
+function ask() {
+    const q = trivia[Math.floor(Math.random() * trivia.length)];
+    document.getElementById(&#39;q-label&#39;).innerText = q.q;
+    const container = document.getElementById(&#39;opt-container&#39;);
+    container.innerHTML = &quot;&quot;;
+    
+    [...q.o, q.a].sort(() =&gt; Math.random() - 0.5).forEach(o =&gt; {
+        const b = document.createElement(&#39;button&#39;);
+        b.className = &quot;opt-btn&quot;;
+        b.innerText = o;
+        b.onclick = () =&gt; validate(o, q.a);
+        container.appendChild(b);
+    });
+    
+    document.getElementById(&#39;modal-trivia&#39;).classList.add(&#39;active&#39;);
+    startClock();
+}
+
+function validate(s, c) {
+    clearInterval(timer);
+    document.getElementById(&#39;modal-trivia&#39;).classList.remove(&#39;active&#39;);
+    
+    const ok = s === c;
+    const title = document.getElementById(&#39;f-title&#39;);
+    const msg = document.getElementById(&#39;f-msg&#39;);
+    const btn = document.getElementById(&#39;f-btn&#39;);
+
+    if(ok) {
+        score += 100;
+        document.getElementById(&#39;ui-score&#39;).innerText = score;
+        title.innerText = &quot;¡ÉXITO!&quot;;
+        title.style.color = &quot;#16A34A&quot;;
+        msg.innerText = &quot;¡Excelente respuesta! Sigue así.&quot;;
+        btn.onclick = () =&gt; { 
+            document.getElementById(&#39;modal-feedback&#39;).classList.remove(&#39;active&#39;); 
+            advance(); 
+        };
+    } else {
+        title.innerText = &quot;ERROR&quot;;
+        title.style.color = &quot;#DC2626&quot;;
+        msg.innerText = &quot;Ese dato no es correcto. Intenta de nuevo.&quot;;
+        btn.onclick = () =&gt; { 
+            document.getElementById(&#39;modal-feedback&#39;).classList.remove(&#39;active&#39;); 
+            ask(); 
+        };
+    }
+    document.getElementById(&#39;modal-feedback&#39;).classList.add(&#39;active&#39;);
+}
+
+function advance() {
+    currentPos += 2;
+    if(currentPos &gt;= tilesData.length) currentPos = tilesData.length - 1;
+    moveAvatar(currentPos);
+    
+    if(currentPos === tilesData.length - 1) { 
+        alert(&quot;¡META! Has completado la maratón. Puntos: &quot; + score); 
+        location.reload(); 
+    } else { 
+        setTimeout(ask, 600); 
+    }
+}
+
+
+</script>
+
+</body>
+</html>
